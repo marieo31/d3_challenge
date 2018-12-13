@@ -9,7 +9,7 @@ var svgHeight = 500;
 var margin = {
   top: 20,
   right: 40,
-  bottom: 80,
+  bottom: 100,
   left: 100
 };
 
@@ -127,10 +127,8 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .attr("opacity", ".7");
 
     // append text into the circles
-    
     var abbrGroup = chartGroup.append("g")
-
-      abbrGroup.selectAll("text")
+      .selectAll("text")
       .data(stateData)
       .enter()
       .append("text")    
@@ -140,6 +138,64 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .classed("stateText", true)
       .text(d => d.abbr)
 
+    // create group for the x-axis labels
+    var labelsXGroup = chartGroup.append("g")
+    .attr("transform", `translate(${width / 2}, ${height + 20})`);
+
+    var povertyLabel = labelsXGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 20)
+    .attr("value", "poverty") // value to grab for event listener
+    .classed("active", true)
+    .text("In Poverty (%)");
+
+    var ageLabel = labelsXGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 40)
+    .attr("value", "age") // value to grab for event listener
+    .classed("inactive", true)
+    .text("Age (Median)");
+
+    var incomeLabel = labelsXGroup.append("text")
+    .attr("x", 0)
+    .attr("y", 60)
+    .attr("value", "income") // value to grab for event listener
+    .classed("inactive", true)
+    .text("Household income (median)");    
+
+    // create group for the y-axis labels
+    var labelsYGroup = chartGroup.append("g")    
+    .attr("transform", "rotate(-90)")
+    
+    var healthcareLabel = labelsYGroup.append("text")
+      .attr("y", 0 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")  
+      .classed("active", true)
+      .text("Lacks HealthCare (%)")
+
+    var smokesLabel = labelsYGroup.append("text")
+      .attr("y", 20 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")  
+      .classed("inactive", true)
+      .text("Smokes (%)")
+
+    var smokesLabel = labelsYGroup.append("text")
+      .attr("y", 20 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")  
+      .classed("inactive", true)
+      .text("Smokes (%)")    
+
+    var obeseLabel = labelsYGroup.append("text")
+      .attr("y", 40 - margin.left)
+      .attr("x", 0 - (height / 2))
+      .attr("dy", "1em")  
+      .classed("inactive", true)
+      .text("Obesity (%)")          
+
+    console.log(healthcareLabel)
     // console.log(stateData)
 
 
