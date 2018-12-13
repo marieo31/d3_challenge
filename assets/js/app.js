@@ -89,6 +89,8 @@ d3.csv("assets/data/data.csv", function(err, stateData){
         data.poverty = +data.poverty;
         data.smokes = +data.smokes;
         data.age = +data.age
+        // data.abbr = data.abbr+"b"
+        // console.log(data.abbr)
     })
 
     console.log(stateData[0])
@@ -113,7 +115,7 @@ d3.csv("assets/data/data.csv", function(err, stateData){
     chartGroup.append("g")
       .call(leftAxis);    
 
-    // append initial circles
+    // append Circles
     var circlesGroup = chartGroup.selectAll("circle")
       .data(stateData)
       .enter()
@@ -124,6 +126,23 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .attr("fill", "blue")
       .attr("opacity", ".7");
 
-    console.log(xLinearScale)
-    console.log(circlesGroup)
+    // append text into the circles
+    
+    var abbrGroup = chartGroup.append("g")
+
+      abbrGroup.selectAll("text")
+      .data(stateData)
+      .enter()
+      .append("text")    
+      .attr("dx", d => xLinearScale(d[chosenXAxis]))
+      .attr("dy", d => yLinearScale(d[chosenYAxis])+5)
+      .attr("font-size", 12)
+      .classed("stateText", true)
+      .text(d => d.abbr)
+
+    // console.log(stateData)
+
+
+    // console.log(xLinearScale)
+    // console.log(circlesGroup)
 })
