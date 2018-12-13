@@ -19,7 +19,7 @@ var height = svgHeight - margin.top - margin.bottom;
 // SVG wrapper
 //------------
 var svg = d3
-  .select(".chart")
+  .select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -28,20 +28,60 @@ var svg = d3
 var chartGroup = svg.append("g")
   .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
+
 // Scaling funtions
+//-----------------
+
+// Initial chosen axis
+var chosenXAxis = "poverty";
+var chosenYAxis = "healthcare"
+
+// function used for updating x-scale var upon click on axis label
+function xScale(data, chosenXAxis){
+  // create x-scale
+  var xLinearScale = d3.scaleLinear()
+    .domain([
+      d3.min(data, d => d[chosenXAxis])*0.8,
+      d3.max(data, d => d[chosenXAxis])*1.2
+    ])
+    .range([0, width]);
+  return xLinearScale
+}
+
+// function used for updating y-scale var upon click on axis label
+function yScale(data, chosenYAxis){
+  // create x-scale
+  var xLinearScale = d3.scaleLinear()
+    .domain([
+      d3.min(data, d => d[chosenYAxis])*0.8,
+      d3.max(data, d => d[chosenYAxis])*1.2
+    ])
+    .range([height, 0]);
+  return xLinearScale
+}
+
+// function used for updating xAxis var upon click on axis label
+function renderAxes(newXScale, xAxis) {
+  var bottomAxis = d3.axisBottom(newXScale);
+
+  xAxis.transition()
+    .duration(1000)
+    .call(bottomAxis);
+
+  return xAxis;
+}
+
+//
 
 
 
 // Retrieve data from the csv file
+// --------------------------------
 d3.csv("assets/data/data.csv", function(err, stateData){
 // d3.csv("donuts.csv", function(err, stateData){
     if (err) throw err;
 
-    console.log("blabla")
-    console.log(stateData)
-    
-
-    // Parsing the data
+    // Parse the data
     stateData.forEach(function(data){
         data.healthcare = +data.healthcare;
         data.obesity = +data.obesity;
@@ -51,5 +91,39 @@ d3.csv("assets/data/data.csv", function(err, stateData){
         data.age = +data.age
     })
 
-    console.log(stateData[1])
+    console.log(stateData[0])
+
+    // Create x-Scale
+    var xLinearScale = xScale(stateData, chosenXAxis);
+    
+    // Create y-Scale
+    var yLinearScale = yScale(stateData, chosenYAxis);
+
+    // Create initial axis funtion
+    var bottomAxis = d3.axisBottom(xLinearScale);
+    var leftAxis = d3.axisLeft(yLinearScale);
+
+    // append x axis
+    var xAxis = chartGroup.append("g")
+      .classed("x-axis", true)
+      .attr("transform", `translate(0, ${height})`)
+      .call(bottomAxis);
+
+    // append y axis
+    chartGroup.append("g")
+      .call(leftAxis);    
+
+    // append initial circles
+    var circlesGroup = chartGroup.selectAll("circle")
+      .data(stateData)
+      .enter()
+      .append("circle")
+      .attr("cx", d => xLinearScale(d[chosenXAxis]))
+      .attr("cy", d => yLinearScale(d[chosenYAxis]))
+      .attr("r", 15)
+      .attr("fill", "blue")
+      .attr("opacity", ".7");
+
+    console.log(xLinearScale)
+    console.log(circlesGroup)
 })
