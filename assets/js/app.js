@@ -41,8 +41,8 @@ function xScale(data, chosenXAxis){
   // create x-scale
   var xLinearScale = d3.scaleLinear()
     .domain([
-      d3.min(data, d => d[chosenXAxis])*0.8,
-      d3.max(data, d => d[chosenXAxis])*1.2
+      d3.min(data, d => d[chosenXAxis])*0.9,//*0.8,
+      d3.max(data, d => d[chosenXAxis])*1.1,//*1.2
     ])
     .range([0, width]);
   return xLinearScale
@@ -51,8 +51,6 @@ function xScale(data, chosenXAxis){
 // function used for updating y-scale var upon click on axis label
 function yScale(data, chosenYAxis){
   // create x-scale
-  console.log(chosenYAxis)
-  console.log(d3.extent(data, d=>d[chosenYAxis]))
   var yLinearScale = d3.scaleLinear()
     .domain([
       d3.min(data, d => d[chosenYAxis])*0.8,
@@ -138,20 +136,27 @@ function getTipLabel(chosenAxis, value){
 
 
 // function for updating the tooltips
-function updateToolTip(circlesGroup, chosenXAxis, chosenYAxis){
-  // var xtLabel = getTipLabel(chosenXAxis);
-  // var ytLabel = getTipLabel(chosenYAxis);
+//-----------------------------------
+function updateToolTip(circlesGroup, chosenXAxis, chosenYAxis, offsetText=false){
 
+  // Adding an extra offset when the tooltip is on the text inside the bubble
+  if (offsetText == true){
+    var offval = -17;
+  }
+  else{
+    var offval = -8;
+  }
 
+  // creating the tooltip
   var toolTip = d3.tip()
         .attr("class", "d3-tip")
-        .offset([-8, 0])
+        .offset([offval, 0])
         .html(function(d){
           return (`${d.state}<br>${getTipLabel(chosenXAxis, d[chosenXAxis])}<br>${getTipLabel(chosenYAxis, d[chosenYAxis])}`)
         });     
 
-  // svg.call(tool_tip)  
 
+  // adding it to the circles or abbreviation group
   circlesGroup.call(toolTip);
 
   circlesGroup.on("mouseover", function(data){
@@ -160,16 +165,6 @@ function updateToolTip(circlesGroup, chosenXAxis, chosenYAxis){
   circlesGroup.on("mouseout", function(data){
     toolTip.hide(data);    
   })  
-
-  // abbrGroup.call(toolTip);
-
-  // abbrGroup.on("mouseover", function(data){
-  //   toolTip.show(data);
-  // })
-  // abbrGroup.on("mouseover", function(data){
-  //   toolTip.hide(data)
-  // })
-  
 
   return circlesGroup;
 }
@@ -234,7 +229,7 @@ function updateToolTip(circlesGroup, chosenXAxis, chosenYAxis){
 // Retrieve data from the csv file
 // --------------------------------
 d3.csv("assets/data/data.csv", function(err, stateData){
-// d3.csv("donuts.csv", function(err, stateData){
+
     if (err) throw err;
 
     // Parse the data
@@ -245,11 +240,8 @@ d3.csv("assets/data/data.csv", function(err, stateData){
         data.poverty = +data.poverty;
         data.smokes = +data.smokes;
         data.age = +data.age
-        // data.abbr = data.abbr+"b"
-        // console.log(data.abbr)
     })
 
-    console.log(stateData[0])
 
     // Create x-Scale
     var xLinearScale = xScale(stateData, chosenXAxis);
@@ -295,9 +287,9 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .classed("stateText", true)
       .text(d => d.abbr)
 
+    // Add tooltips
     var circlesGroup = updateToolTip(circlesGroup, chosenXAxis, chosenYAxis )
-
-    console.log(healthcareLabel)
+    var abbrGroup = updateToolTip(abbrGroup, chosenXAxis, chosenYAxis, offset=true )
 
     // Xaxis event listener
     labelsXGroup.selectAll("text")
@@ -321,6 +313,11 @@ d3.csv("assets/data/data.csv", function(err, stateData){
 
           // update abbr position
           abbrGroup = renderAbbr(abbrGroup, "x", xLinearScale, chosenXAxis)
+
+          // update tooltips
+          circlesGroup = updateToolTip(circlesGroup, chosenXAxis, chosenYAxis )
+          abbrGroup = updateToolTip(abbrGroup, chosenXAxis, chosenYAxis, offset=true )
+      
 
           // changes classes to change bold text     
           switch(value){
@@ -382,6 +379,11 @@ d3.csv("assets/data/data.csv", function(err, stateData){
           circlesGroup = renderCircles(circlesGroup, "y", yLinearScale, chosenYAxis);
           abbrGroup = renderAbbr(abbrGroup, "y", yLinearScale, chosenYAxis);
 
+          // update tooltips
+          circlesGroup = updateToolTip(circlesGroup, chosenXAxis, chosenYAxis )
+          abbrGroup = updateToolTip(abbrGroup, chosenXAxis, chosenYAxis, offset=true )
+      
+
           // changes classes to change bold text
           switch(value){
             case "healthcare":
@@ -421,10 +423,4 @@ d3.csv("assets/data/data.csv", function(err, stateData){
         }
 
       })
-
-    // console.log(stateData)
-
-
-    // console.log(xLinearScale)
-    // console.log(circlesGroup)
 })
