@@ -71,7 +71,23 @@ function renderAxes(newXScale, xAxis) {
   return xAxis;
 }
 
-//
+// function used for updating the circles position
+function renderCircles(circlesGroup, axis, newScale){
+  circlesGroup.transition()
+    .duration(1000)
+    .attr("c"+axis, d => newScale(d[chosenXAxis]));
+
+  return circlesGroup;
+}
+
+// function for updating the text into the circle
+function renderAbbr(abbrGroup, axis, newScale){
+  abbrGroup.transition()
+    .duration(1000)
+    .attr("d"+axis, d => newScale(d[chosenXAxis]));
+
+  return abbrGroup;
+}
 
 
 
@@ -171,6 +187,7 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .attr("y", 0 - margin.left)
       .attr("x", 0 - (height / 2))
       .attr("dy", "1em")  
+      .attr("value", "healthcare")
       .classed("active", true)
       .text("Lacks HealthCare (%)")
 
@@ -178,24 +195,94 @@ d3.csv("assets/data/data.csv", function(err, stateData){
       .attr("y", 20 - margin.left)
       .attr("x", 0 - (height / 2))
       .attr("dy", "1em")  
+      .attr("value", "smokes")
       .classed("inactive", true)
       .text("Smokes (%)")
-
-    var smokesLabel = labelsYGroup.append("text")
-      .attr("y", 20 - margin.left)
-      .attr("x", 0 - (height / 2))
-      .attr("dy", "1em")  
-      .classed("inactive", true)
-      .text("Smokes (%)")    
+  
 
     var obeseLabel = labelsYGroup.append("text")
       .attr("y", 40 - margin.left)
       .attr("x", 0 - (height / 2))
       .attr("dy", "1em")  
+      .attr("value", "healthcare")
       .classed("inactive", true)
       .text("Obesity (%)")          
 
     console.log(healthcareLabel)
+
+    // Xaxis event listener
+    labelsXGroup.selectAll("text")
+      .on("click", function(){
+        // get the value of the selection
+        let value = d3.select(this).attr("value");
+        // console.log(chosenXAxis)
+        // console.log(value)
+        if (value !== chosenXAxis){
+          // replaces chosenXAxis with value
+          chosenXAxis = value;
+
+          // update xscale
+          xLinearScale = xScale(stateData, chosenXAxis);
+
+          // update x axis
+          xAxis = renderAxes(xLinearScale, xAxis);
+
+          // updqte circles position
+          circlesGroup = renderCircles(circlesGroup, "x", xLinearScale)
+
+          // update abbr position
+          abbrGroup = renderAbbr(abbrGroup, "x", xLinearScale)
+
+          // changes classes to change bold text     
+          switch(value){
+            case "poverty":
+              povertyLabel
+                .classed("active", true)
+                .classed("inactive", false)
+              ageLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              incomeLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              break;
+            case "age":
+              povertyLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              ageLabel
+                .classed("active", true)
+                .classed("inactive", false)
+              incomeLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              break;
+            case "income":
+              povertyLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              ageLabel
+                .classed("active", false)
+                .classed("inactive", true)
+              incomeLabel
+                .classed("active", true)
+                .classed("inactive", false) 
+              break;               
+
+          }     
+        }
+      })
+
+    // Yaxis event listener
+    // labelsYGroup.selectAll("text")
+    //   .on("click", function(){
+    //     // get the value of the selection
+    //     let value = d3.select(this).attr("value");
+
+    //     if 
+
+    //   })
+
     // console.log(stateData)
 
 
