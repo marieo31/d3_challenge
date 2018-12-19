@@ -66,6 +66,7 @@ function renderXAxes(newXScale, xAxis) {
 
   xAxis.transition()
     .duration(1000)
+    .attr("class", "aText")
     .call(bottomAxis);
 
   return xAxis;
@@ -77,6 +78,7 @@ function renderYAxes(newYScale, yAxis) {
 
   yAxis.transition()
     .duration(1000)
+    .attr("class", "aText")
     .call(leftAxis);
 
   return yAxis;
@@ -257,11 +259,13 @@ d3.csv("assets/data/data.csv", function(err, stateData){
     var xAxis = chartGroup.append("g")
       .classed("x-axis", true)
       .attr("transform", `translate(0, ${height})`)
+      .attr("class", "aText")
       .call(bottomAxis);
 
     // append y axis
     var yAxis = chartGroup.append("g")
       .classed("y-axis", true)
+      .attr("class", "aText")
       .call(leftAxis);    
 
     // append Circles
